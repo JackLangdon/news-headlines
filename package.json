@@ -1,0 +1,24 @@
+{
+  "name": "news-headlines",
+  "version": "1.0.0",
+  "description": "Get the latest headlines",
+  "main": "bin/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "John Ross",
+  "license": "ISC",
+  "bin": {
+    "news": "./app.js"
+  },
+  "dependencies": {
+    "axios": "^0.26.0",
+    "cheerio": "^1.0.0-rc.10",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
