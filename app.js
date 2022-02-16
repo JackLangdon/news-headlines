@@ -3,18 +3,73 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 
-const searchTerm = process.argv.slice(2);
-console.log(`\nGathering stories concerning "${searchTerm[0]}"...`);
+let optionalArgs = process.argv.slice(2);
+
+let searchArg = '';
+let numArg = 10;
+let urlArg = '-n';
+
+if (optionalArgs.length > 0) {
+    for (let i = 0; i < optionalArgs.length && i < 3; i++) {
+        if (!isNaN(parseInt(optionalArgs[i]))) {
+            numArg = optionalArgs[i];
+        } else if (optionalArgs[i].charAt(0) == '-') {
+            urlArg = optionalArgs[i];
+        } else {
+            searchArg = optionalArgs[i];
+        }
+    }
+}
+
+if (searchArg != '') {
+    console.log(`\nGathering ${numArg} stories concerning "${searchArg}"...`);
+}
+
+let url;
+let container;
+let titleClass = '';
+let excerptClass = '';
+let linkClass = '';
+
+switch (urlArg) {
+    case '-n':
+        url = 'https://www.news.com.au/world';
+        container = '.storyblock';
+        titleClass = 'a.storyblock_title_link';
+        excerptClass = 'p.storyblock_standfirst.g_font-body-s';
+        linkClass = 'a.storyblock_title_link';
+        break;
+    case '-afr':
+        url = 'https://www.afr.com/';
+        container = 'div[data-testid="StoryTileBase"]';
+        titleClass = 'h3[data-testid="StoryTileHeadline-h3"] a';
+        excerptClass = 'div[data-testid="StoryTileBase"] p';
+        linkClass = 'h3[data-testid="StoryTileHeadline-h3"] a';
+        break;
+    case '-bbc':
+        url = 'https://www.bbc.com/news';
+        container = '.gel-layout__item';
+        titleClass = 'h3.gs-c-promo-heading__title';
+        excerptClass = 'p.gs-c-promo-summary';
+        linkClass = 'a.gs-c-promo-heading';
+        break;
+    default:
+        url = 'https://www.news.com.au/world';
+        container = '.storyblock';
+        titleClass = 'a.storyblock_title_link';
+        excerptClass = 'p.storyblock_standfirst.g_font-body-s';
+        linkClass = 'a.storyblock_title_link';
+}
 
 export async function getHeadlines(search) {
-    const html = await axios.get('https://www.news.com.au/world');
+    const html = await axios.get(url);
     const $ = await cheerio.load(html.data);
     let data = [];
     
-    $('.storyblock').each((i, elem) => {
-        if (i <= 14) {
+    $(container).each((i, elem) => {
+        if (data.length < numArg && i <= 100) {
 
-            let excerpt = $(elem).find('p.storyblock_standfirst.g_font-body-s').text();
+            let excerpt = $(elem).find(excerptClass).text().trim();
             let excerptArray = excerpt.split(' ');
 
             let brokenExcerpt = '';
@@ -25,21 +80,23 @@ export async function getHeadlines(search) {
                 }
             }
 
-            if (search) {
-                search = search.toLowerCase();
-                let title = $(elem).find('a.storyblock_title_link').text();
+            let title = $(elem).find(titleClass).text().trim();
 
-                if (title.toLowerCase().includes(search.toLowerCase())) {
+            if (searchArg) {
+                search = search.toLowerCase();
+
+                if (title != '' && title.toLowerCase().includes(search.toLowerCase())) {
                     data.push({
-                        title: title,
-                        link: $(elem).find('a.storyblock_title_link').attr('href'),
+                        title: title.trim(),
+                        link: $(elem).find(linkClass).attr('href'),
                         excerpt: brokenExcerpt
                     })
+                    console.log('data: ', data)
                 }
-            } else {
+            } else if (title != '') {
                 data.push({
-                    title: $(elem).find('a.storyblock_title_link').text(),
-                    link: $(elem).find('a.storyblock_title_link').attr('href'),
+                    title: title,
+                    link: $(elem).find(linkClass).attr('href'),
                     excerpt: brokenExcerpt
                 })
             }
@@ -60,4 +117,4 @@ export async function getHeadlines(search) {
     }
 }
 
-getHeadlines(searchTerm[0]);
+getHeadlines(searchArg, numArg, urlArg);
