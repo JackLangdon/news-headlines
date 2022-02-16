@@ -41,10 +41,10 @@ switch (urlArg) {
         break;
     case '-afr':
         url = 'https://www.afr.com/';
-        container = '[data-testid="StoryTileBase"]';
-        titleClass = 'h3.StoryTileHeadline-h3 a';
-        excerptClass = '.StoryTileBase p';
-        linkClass = '.StoryTileHeadline-h3 a';
+        container = 'div[data-testid="StoryTileBase"]';
+        titleClass = 'h3[data-testid="StoryTileHeadline-h3"] a';
+        excerptClass = 'div[data-testid="StoryTileBase"] p';
+        linkClass = 'h3[data-testid="StoryTileHeadline-h3"] a';
         break;
     case '-bbc':
         url = 'https://www.bbc.com/news';
