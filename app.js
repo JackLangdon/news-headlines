@@ -5,8 +5,6 @@ import cheerio from 'cheerio';
 
 let optionalArgs = process.argv.slice(2);
 
-console.log(optionalArgs)
-
 let searchArg = '';
 let numArg = 10;
 let urlArg = '-n';
@@ -23,12 +21,8 @@ if (optionalArgs.length > 0) {
     }
 }
 
-console.log('Search: ', searchArg)
-console.log('Num: ', numArg)
-console.log('URL: ', urlArg)
-
 if (searchArg != '') {
-    console.log(`\nGathering stories concerning "${searchArg}"...`);
+    console.log(`\nGathering ${numArg} stories concerning "${searchArg}"...`);
 }
 
 let url;
@@ -90,7 +84,7 @@ export async function getHeadlines(search) {
 
             if (searchArg) {
                 search = search.toLowerCase();
-                
+
                 if (title != '' && title.toLowerCase().includes(search.toLowerCase())) {
                     data.push({
                         title: title.trim(),
