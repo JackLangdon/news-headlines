@@ -11,7 +11,8 @@ _search term_, _search without term_ _number of articles_ and _source flag_ are 
 
 ##### Search term
 - A string to match with the article headline.
-- Prefix with '?', or include between "double quotes" to search for a multi-word string.
+- Prefix with '?'
+- For a multi-word search use underscores (_) instead of spaces
 
 ##### Search without term
 - Exclude an article if the headline contains this term.

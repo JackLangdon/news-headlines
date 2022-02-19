@@ -25,10 +25,7 @@ if (optionalArgs.length > 0) {
             withoutArg = optionalArgs[i].substring(1);
         }
         if (optionalArgs[i].charAt(0) == '?') {
-            searchArg = optionalArgs[i].substring(1);
-        }
-        if (optionalArgs[i].charAt(0) == '"') {
-            searchArg = optionalArgs[i].replace('"', '');
+            searchArg = optionalArgs[i].substring(1).replace('_', ' ');
         }
     }
 }
