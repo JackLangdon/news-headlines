@@ -16,7 +16,7 @@ Run from the command line with the following:
 
 ```$ news ?<search term> /<serach without term> </serach> <number of articles> <source flag>```
 
-_search term_, _search without term_ _number of articles_ and _source flag_ are optional arguments. Their order does not matter. None are required.
+_search term_, _search without term_, _number of articles_ and _source flag_ are optional arguments. Their order does not matter. None are required.
 
 #### Search term
 - A string to match with the article headline.
