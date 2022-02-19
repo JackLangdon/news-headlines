@@ -28,12 +28,12 @@ _search term_, _search without term_, _number of articles_ and _source flag_ are
 - Prefix with '/'
 
 #### Number of articles
-_leave blank to default to 10_
-_number of returned articles is hard-capped at 50_
+- _leave blank to default to 10_
+- _number of returned articles is hard-capped at 50_
 - An integer to return up to that number of articles if found.
 
 #### Source Flags
-_leave blank to default to -n_
+- _leave blank to default to -n_
 - -n = news.com.au
 - -bbc = bbc.com
 - -afr = afr.com
