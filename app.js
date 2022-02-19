@@ -25,10 +25,7 @@ if (optionalArgs.length > 0) {
             withoutArg = optionalArgs[i].substring(1);
         }
         if (optionalArgs[i].charAt(0) == '?') {
-            searchArg = optionalArgs[i].substring(1);
-        }
-        if (optionalArgs[i].charAt(0) == '"') {
-            searchArg = optionalArgs[i].replace('"', '');
+            searchArg = optionalArgs[i].substring(1).replace('_', ' ');
         }
     }
 }
@@ -75,7 +72,7 @@ switch (urlArg) {
         linkClass = 'a.storyblock_title_link';
 }
 
-console.log(`\nChecking "${site}" for up to ${numArg} ${numArg == 1 ? 'story' : 'stories'}...`);
+console.log(`\nChecking "${site}" for up to ${numArg > 50 ? '50' : numArg} ${numArg == 1 ? 'story' : 'stories'}...`);
 if (searchArg != '') {
     console.log(`\nSearch = "${searchArg}"`);
 }
@@ -90,7 +87,7 @@ export async function getHeadlines(searchArg, withoutArg, numArg, url) {
     
     $(container).each((i, elem) => {
         // search page for up to the first 50 articles
-        if (data.length < numArg && i <= 50) {
+        if (data.length < numArg && i <= 49) {
 
             // break excerpt into multiple lines for easier reading
             let excerpt = $(elem).find(excerptClass).text().trim();
