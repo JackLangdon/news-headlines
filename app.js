@@ -3,37 +3,48 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 
+// get optional arguments
 let optionalArgs = process.argv.slice(2);
 
+// set default arguments
 let searchArg = '';
+let withoutArg = '';
 let numArg = 10;
 let urlArg = '-n';
 
+// update arguments
 if (optionalArgs.length > 0) {
-    for (let i = 0; i < optionalArgs.length && i < 3; i++) {
+    for (let i = 0; i < optionalArgs.length && i < 4; i++) {
         if (!isNaN(parseInt(optionalArgs[i]))) {
             numArg = optionalArgs[i];
-        } else if (optionalArgs[i].charAt(0) == '-') {
+        }
+        if (optionalArgs[i].charAt(0) == '-') {
             urlArg = optionalArgs[i];
-        } else {
-            searchArg = optionalArgs[i];
+        }
+        if (optionalArgs[i].charAt(0) == '/') {
+            withoutArg = optionalArgs[i].substring(1);
+        }
+        if (optionalArgs[i].charAt(0) == '?') {
+            searchArg = optionalArgs[i].substring(1);
+        }
+        if (optionalArgs[i].charAt(0) == '"') {
+            searchArg = optionalArgs[i].replace('"', '');
         }
     }
 }
 
-if (searchArg != '') {
-    console.log(`\nGathering ${numArg} stories concerning "${searchArg}"...`);
-}
-
 let url;
+let site;
 let container;
 let titleClass = '';
 let excerptClass = '';
 let linkClass = '';
 
+// set site specific content to scrape
 switch (urlArg) {
     case '-n':
         url = 'https://www.news.com.au/world';
+        site = 'news.com.au';
         container = '.storyblock';
         titleClass = 'a.storyblock_title_link';
         excerptClass = 'p.storyblock_standfirst.g_font-body-s';
@@ -41,6 +52,7 @@ switch (urlArg) {
         break;
     case '-afr':
         url = 'https://www.afr.com/';
+        site = 'afr.com';
         container = 'div[data-testid="StoryTileBase"]';
         titleClass = 'h3[data-testid="StoryTileHeadline-h3"] a';
         excerptClass = 'div[data-testid="StoryTileBase"] p';
@@ -48,6 +60,7 @@ switch (urlArg) {
         break;
     case '-bbc':
         url = 'https://www.bbc.com/news';
+        site = 'bbc.com';
         container = '.gel-layout__item';
         titleClass = 'h3.gs-c-promo-heading__title';
         excerptClass = 'p.gs-c-promo-summary';
@@ -55,23 +68,33 @@ switch (urlArg) {
         break;
     default:
         url = 'https://www.news.com.au/world';
+        site = 'news.com.au';
         container = '.storyblock';
         titleClass = 'a.storyblock_title_link';
         excerptClass = 'p.storyblock_standfirst.g_font-body-s';
         linkClass = 'a.storyblock_title_link';
 }
 
-export async function getHeadlines(search) {
+console.log(`\nChecking "${site}" for up to ${numArg} ${numArg == 1 ? 'story' : 'stories'}...`);
+if (searchArg != '') {
+    console.log(`\nSearch = "${searchArg}"`);
+}
+if (withoutArg != '') {
+    console.log(`\nIgnore = "${withoutArg}"`);
+}
+
+export async function getHeadlines(searchArg, withoutArg, numArg, url) {
     const html = await axios.get(url);
     const $ = await cheerio.load(html.data);
     let data = [];
     
     $(container).each((i, elem) => {
-        if (data.length < numArg && i <= 100) {
+        // search page for up to the first 50 articles
+        if (data.length < numArg && i <= 50) {
 
+            // break excerpt into multiple lines for easier reading
             let excerpt = $(elem).find(excerptClass).text().trim();
             let excerptArray = excerpt.split(' ');
-
             let brokenExcerpt = '';
             for (let i = 0; i < excerptArray.length; i++) {
                 brokenExcerpt += `${excerptArray[i]} `;
@@ -81,21 +104,18 @@ export async function getHeadlines(search) {
             }
 
             let title = $(elem).find(titleClass).text().trim();
+            let search = searchArg.toLowerCase();
+            let without = withoutArg.toLowerCase();
 
-            if (searchArg) {
-                search = search.toLowerCase();
+            // skip to next article if title contains 'without' argument
+            if (title != '' && without != '' && title.toLowerCase().includes(without)) {
+                return;
+            }
 
-                if (title != '' && title.toLowerCase().includes(search.toLowerCase())) {
-                    data.push({
-                        title: title.trim(),
-                        link: $(elem).find(linkClass).attr('href'),
-                        excerpt: brokenExcerpt
-                    })
-                    console.log('data: ', data)
-                }
-            } else if (title != '') {
+            // empty search will return all articles by default
+            if (title != '' && title.toLowerCase().includes(search.toLowerCase())) {
                 data.push({
-                    title: title,
+                    title: title.trim(),
                     link: $(elem).find(linkClass).attr('href'),
                     excerpt: brokenExcerpt
                 })
@@ -103,6 +123,7 @@ export async function getHeadlines(search) {
         }
     });
 
+    // output results
     if (data.length > 0) {
         console.log(`\nFound ${data.length}!\n\n`);
         for (let i = 0; i < data.length; i++) {
@@ -117,4 +138,4 @@ export async function getHeadlines(search) {
     }
 }
 
-getHeadlines(searchArg, numArg, urlArg);
+getHeadlines(searchArg, withoutArg, numArg, url);
