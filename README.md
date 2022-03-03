@@ -20,7 +20,7 @@ _search term_, _search without term_, _number of articles_ and _source flag_ are
 
 #### Search term
 - A string to match with the article headline.
-- Prefix with '?'
+- Prefix with '@'
 - For a multi-word search use underscores (_) instead of spaces
 
 #### Search without term
